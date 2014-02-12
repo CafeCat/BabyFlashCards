@@ -1,0 +1,28 @@
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/app_background"
+    tools:context=".ImageCards" >
+
+    <ImageView
+        android:id="@+id/myImageView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#000000" />
+
+    <TextView
+        android:id="@+id/textView1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Large Text"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:textColor="#FC4996" />
+
+    <view
+        android:id="@+id/view2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        class="cafecat.colorworld.viewAllCards" />
+
+</FrameLayout>

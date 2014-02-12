@@ -1,0 +1,24 @@
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/startScreen_content"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".MainActivity" >
+
+    <ImageView
+        android:id="@+id/myImageView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_gravity="fill"
+        android:background="@color/app_background"
+        android:src="@drawable/illustration_features" />
+
+    <ImageButton
+        android:id="@+id/imageButton1"
+        android:layout_width="301dp"
+        android:layout_height="match_parent"
+        android:layout_gravity="right" 
+        android:src="@drawable/btn_got_it"
+        android:background="@null"/>
+
+</FrameLayout>

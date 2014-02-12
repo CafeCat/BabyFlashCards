@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <array name="all_cards">
+        <item>@drawable/frog_blank</item>
+        <item>@drawable/frog</item>
+        <item>@drawable/alligato_blank</item>
+        <item>@drawable/alligato</item>
+        <item>@drawable/bean_blank</item>
+        <item>@drawable/bean</item>
+        <item>@drawable/greenpepper_blank</item>
+        <item>@drawable/greenpepper</item>
+        <item>@drawable/inion_blank</item>
+        <item>@drawable/inion</item>
+        <item>@drawable/kaplumbaga_blank</item>
+        <item>@drawable/kaplumbaga</item>
+        <item>@drawable/lahana_blank</item>
+        <item>@drawable/lahana</item>
+        <item>@drawable/leaf_blank</item>
+        <item>@drawable/leaf</item>
+        <item>@drawable/salata_blank</item>
+        <item>@drawable/salata</item>
+        <item>@drawable/tree_blank</item>
+        <item>@drawable/tree</item>
+    </array>
+    <array name="all_cards_bgcolor">
+        <item>#83BA4C</item>
+        <item>#789B55</item>
+        <item>#99C968</item>
+        <item>#73BC29</item>
+        <item>#57AA05</item>
+        <item>#B2DB8A</item>
+        <item>#79BC36</item>
+        <item>#5F9926</item>
+        <item>#BEF28A</item>
+        <item>#679639</item>
+        <item>#83BA4C</item>
+        <item>#789B55</item>
+        <item>#99C968</item>
+        <item>#73BC29</item>
+        <item>#57AA05</item>
+        <item>#B2DB8A</item>
+        <item>#79BC36</item>
+        <item>#5F9926</item>
+        <item>#BEF28A</item>
+        <item>#679639</item>
+    </array>
+</resources>
