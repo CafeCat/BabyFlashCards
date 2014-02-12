@@ -38,7 +38,7 @@ public class viewAllCards extends View {
 	private int setAnimatingRows = 1;
 	private Matrix scaleEffects = new Matrix();
 	private float scaleSwitch = 0;
-	private int animatedTimes = 0;
+	private int animatedTimes = 1;
 	private Boolean cellAnimcationDone = false;
     private Paint paint = new Paint();
 	
@@ -94,6 +94,8 @@ public class viewAllCards extends View {
 		this.setAnimatingRows = _sliceRows;
 		this.aFitableVersionCard = prepareACardForSlices(((BitmapDrawable)coloredCards.getDrawable(0)).getBitmap(), getCardBgColor(0), _viewWidth, _viewHeight,_sliceCols,_sliceRows);
 		mySlices = new SliceImage(this.aFitableVersionCard, this.setAnimatingColumns, this.setAnimatingRows);
+		this.aPreFitableVersionCard = prepareACardForSlices(((BitmapDrawable)coloredCards.getDrawable(0)).getBitmap(), getCardBgColor(0), _viewWidth, _viewHeight,_sliceCols,_sliceRows);
+		myPreSlices = new SliceImage(this.aFitableVersionCard, this.setAnimatingColumns, this.setAnimatingRows);
 		paint.setColor(Color.BLACK);
 	}
 	private int getCardBgColor(int cardIndex){
@@ -114,19 +116,29 @@ public class viewAllCards extends View {
 		cellAnimcationDone = false;
 		if(this.crtAnimatingTargetCell == this.setAnimatingColumns*this.setAnimatingRows){
 			this.crtAnimatingTargetCell = 0;
-			if(animatedTimes == 1)
-			{
-				this.crtAnimatingCard = crtAnimatingCard + 1;
-				if(this.crtAnimatingCard == this.coloredCards.length()){
-					this.crtAnimatingCard = 0;
-				}
-				this.aFitableVersionCard = prepareACardForSlices(((BitmapDrawable)coloredCards.getDrawable(crtAnimatingCard)).getBitmap(), getCardBgColor(crtAnimatingCard), this.thisViewWidth,this.thisViewHeight,this.setAnimatingColumns,this.setAnimatingRows);
-				mySlices = new SliceImage(this.aFitableVersionCard, this.setAnimatingColumns, this.setAnimatingRows);
-				animatedTimes = 0;
-			}else{animatedTimes = animatedTimes + 1;}
+
+			this.crtAnimatingCard = crtAnimatingCard + 1;
+			if(this.crtAnimatingCard == this.coloredCards.length()){
+				this.crtAnimatingCard = 0;
+			}
+			this.aFitableVersionCard = prepareACardForSlices(((BitmapDrawable)coloredCards.getDrawable(crtAnimatingCard)).getBitmap(), getCardBgColor(crtAnimatingCard), this.thisViewWidth,this.thisViewHeight,this.setAnimatingColumns,this.setAnimatingRows);
+			mySlices = new SliceImage(this.aFitableVersionCard, this.setAnimatingColumns, this.setAnimatingRows);
+			int preCardIndex;
+			if(crtAnimatingCard == 0){
+				preCardIndex = coloredCards.length()-1;
+			}else{
+				preCardIndex = crtAnimatingCard - 1;
+			}
+			this.aPreFitableVersionCard = prepareACardForSlices(((BitmapDrawable)coloredCards.getDrawable(preCardIndex)).getBitmap(), getCardBgColor(crtAnimatingCard), this.thisViewWidth,this.thisViewHeight,this.setAnimatingColumns,this.setAnimatingRows);
+			myPreSlices = new SliceImage(this.aPreFitableVersionCard, this.setAnimatingColumns, this.setAnimatingRows);
 		}
-			
-		Bitmap bm = mySlices.getSlice(crtAnimatingTargetCell);
+		Bitmap bm = null;
+		if(animatedTimes == 0)
+		{
+			bm = mySlices.getSlice(crtAnimatingTargetCell);
+		}else if(animatedTimes == 1){
+			bm = myPreSlices.getSlice(crtAnimatingTargetCell);
+		}
 		if(scaleSwitch<1){
 			scaleSwitch = scaleSwitch + 0.04f;
 		}else if(scaleSwitch > 1){
@@ -136,13 +148,13 @@ public class viewAllCards extends View {
 		scaleEffects.reset();
 		if(animatedTimes == 0)
 		{
-			scaleEffects.postScale(scaleSwitch, 1f, (float)bm.getWidth(), 0);
-		}else if(animatedTimes == 1){
 			float ns = 1f-scaleSwitch;
 			if(ns<=0){
 				ns = 0.06f;
 			}
 			scaleEffects.postScale(ns, 1f, (float)bm.getWidth(), 0);
+		}else if(animatedTimes == 1){
+			scaleEffects.postScale(scaleSwitch, 1f, (float)bm.getWidth(), 0);
 		}
 		
 		cellBlock = Bitmap.createBitmap(bm, 0, 0, bm.getWidth(), bm.getHeight(), scaleEffects,false);
@@ -153,7 +165,7 @@ public class viewAllCards extends View {
 		
 		drawAtX = mySlices.getCellOffsetX(crtAnimatingTargetCell)+ (int)Math.round((float)(bm.getWidth()-cellBlock.getWidth())/2f);
 		drawAtY = mySlices.getCellOffsetY(crtAnimatingTargetCell);
-		if(animatedTimes >0){
+		if(animatedTimes == 0){
 			Canvas canvas = new Canvas(storeCellBlock);
 			canvas.drawRect(cx, cy, cx+cw, cy+ch, paint);
 		}
@@ -162,11 +174,13 @@ public class viewAllCards extends View {
 			cellAnimcationDone = true;
 			Canvas canvas = new Canvas(storeCellBlock);
 			if(animatedTimes == 0){
-				canvas.drawBitmap(bm, mySlices.getCellOffsetX(crtAnimatingTargetCell),mySlices.getCellOffsetY(crtAnimatingTargetCell),null);
-			}else{
 				canvas.drawRect(cx, cy, cx+cw, cy+ch, paint);
+				animatedTimes = animatedTimes + 1;
+			}else if(animatedTimes == 1){
+				canvas.drawBitmap(bm, mySlices.getCellOffsetX(crtAnimatingTargetCell),mySlices.getCellOffsetY(crtAnimatingTargetCell),null);
+				crtAnimatingTargetCell = crtAnimatingTargetCell + 1;
+				animatedTimes = 0;
 			}
-			crtAnimatingTargetCell = crtAnimatingTargetCell + 1;
 			scaleSwitch = 0;
 		}
 		Log.e(Tag_ViewAllCards,"updateCellAnimationFrame(), return "+cellAnimcationDone.toString());
