@@ -129,18 +129,18 @@ public class viewAllCards extends View {
 			}else{
 				preCardIndex = crtAnimatingCard - 1;
 			}
-			this.aPreFitableVersionCard = prepareACardForSlices(((BitmapDrawable)coloredCards.getDrawable(preCardIndex)).getBitmap(), getCardBgColor(crtAnimatingCard), this.thisViewWidth,this.thisViewHeight,this.setAnimatingColumns,this.setAnimatingRows);
+			this.aPreFitableVersionCard = prepareACardForSlices(((BitmapDrawable)coloredCards.getDrawable(preCardIndex)).getBitmap(), getCardBgColor(preCardIndex), this.thisViewWidth,this.thisViewHeight,this.setAnimatingColumns,this.setAnimatingRows);
 			myPreSlices = new SliceImage(this.aPreFitableVersionCard, this.setAnimatingColumns, this.setAnimatingRows);
 		}
 		Bitmap bm = null;
 		if(animatedTimes == 0)
 		{
-			bm = mySlices.getSlice(crtAnimatingTargetCell);
-		}else if(animatedTimes == 1){
 			bm = myPreSlices.getSlice(crtAnimatingTargetCell);
+		}else if(animatedTimes == 1){
+			bm = mySlices.getSlice(crtAnimatingTargetCell);
 		}
 		if(scaleSwitch<1){
-			scaleSwitch = scaleSwitch + 0.04f;
+			scaleSwitch = scaleSwitch + 0.04f+ (float)scaleSwitch/4f;
 		}else if(scaleSwitch > 1){
 			scaleSwitch = 1;
 		}
@@ -152,9 +152,9 @@ public class viewAllCards extends View {
 			if(ns<=0){
 				ns = 0.06f;
 			}
-			scaleEffects.postScale(ns, 1f, (float)bm.getWidth(), 0);
+			scaleEffects.postScale(ns, 1f, (float)bm.getWidth()/2f, (float)bm.getHeight()/2f);
 		}else if(animatedTimes == 1){
-			scaleEffects.postScale(scaleSwitch, 1f, (float)bm.getWidth(), 0);
+			scaleEffects.postScale(scaleSwitch, 1f, (float)bm.getWidth()/2f, (float)bm.getHeight()/2f);
 		}
 		
 		cellBlock = Bitmap.createBitmap(bm, 0, 0, bm.getWidth(), bm.getHeight(), scaleEffects,false);
