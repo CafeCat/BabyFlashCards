@@ -5,6 +5,7 @@ import java.io.IOException;
 
 import android.media.AudioManager;
 import android.media.MediaPlayer;
+import android.media.MediaPlayer.OnCompletionListener;
 import android.media.SoundPool;
 import android.media.SoundPool.OnLoadCompleteListener;
 import android.os.Bundle;
@@ -16,6 +17,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.widget.TextView;
 import android.app.Activity;
+import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
@@ -41,46 +43,66 @@ public class ImageCards extends Activity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_image_cards);
 		
-		//Get the app view size
+		//Get the app view size, handel animations
 		Display currentDisplay = getWindowManager().getDefaultDisplay();
 		Point size = new Point();
 		currentDisplay.getSize(size);
 		thisAppViewWidth = size.x;
 		thisAppViewHeight = size.y;
 		
-
 		myCardsViewer = new viewAllCards(getApplicationContext());
 		myCardsViewer = (viewAllCards)findViewById(R.id.view2);	
-		
-		myCardsViewer.prepare(size.x, size.y, 5, 3);
-			
+		myCardsViewer.prepare(size.x, size.y, 6, 4);
 		mHandler = new Handler();
 		mHandlerSwitch = new Handler();
         
+		//handel sounds
         this.setVolumeControlStream(AudioManager.STREAM_MUSIC);
         mySoundEffects = new SoundManager(getApplicationContext());
-        soundID = mySoundEffects.load(R.raw.digital_pop1);        
+        soundID = mySoundEffects.load(R.raw.digital_pop1);  
+        
+
+        MediaPlayer mp = MediaPlayer.create(getApplicationContext(), R.raw.chopin_walts_35sec);   
+        try {
+			mp.prepare();
+		} catch (IllegalStateException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+        mp.start();
+        mp.setOnCompletionListener(new OnCompletionListener() {
+			@Override
+			public void onCompletion(MediaPlayer mp) {
+				if(myCardsViewer.getPlayingCardIndex()>=0 && myCardsViewer.getPlayingCardIndex()<=7){
+					mp.setd
+				}
+			}
+		});
         
         //Listernes here
         myCardsViewer.setOnTouchListener(new MyImageViewTouchProcessor());
+        
        
         //Debugging here
         debugTxt = (TextView)findViewById(R.id.textView1);
 		//debugTxt.setText(fitableSrc.getWidth()+","+fitableSrc.getHeight()+"/display w,h ("+size.x+","+size.y+")"+"|"+src.getWidth()+","+src.getHeight());
         //debugTxt.setText(myGridCrop.getOffsetAndSizeStr() + System.getProperty("line.separator") + fitableSrc.getWidth()+","+fitableSrc.getHeight());
-        Thread.currentThread().setUncaughtExceptionHandler(new HeapDumpingUncaughtExceptionHandler(getApplicationInfo().dataDir));
+        //Thread.currentThread().setUncaughtExceptionHandler(new HeapDumpingUncaughtExceptionHandler(getApplicationInfo().dataDir));
 	}
 	
 	@Override 
 	protected void onPause(){
-		//mHandler.removeCallbacks(runAnimateCell);
+		mHandler.removeCallbacks(runCellChangeAnimation);
+		mHandlerSwitch.removeCallbacks(runCellAnimation);
 		super.onPause();
 	}
 	
 	@Override
 	protected void onResume(){
 		mHandler.post(runCellChangeAnimation);
-		//mHandler.postDelayed(runAnimateCell, 500);
 		super.onResume();
 	}
 	
@@ -89,7 +111,11 @@ public class ImageCards extends Activity {
         public void run() 
         {
         	mHandlerSwitch.post(runCellAnimation);
-        	Log.e(Tag,"Runnable runCellChangeAnimation");
+        	if(myCardsViewer.isCellOpen()){
+        		mySoundEffects.setVolume(0.5f);
+        		mySoundEffects.play(soundID);
+        	}
+        	Log.e(Tag,"Runnable CellChange");
         }        
     };
     
@@ -101,31 +127,10 @@ public class ImageCards extends Activity {
     			mHandlerSwitch.postDelayed(this, 5);
     		}else{
     			mHandler.post(runCellChangeAnimation);
+    			
     		}
     	}
     };
-    
-    private class myAnimatorBucket extends myImageFactory{
-    	private TypedArray myCards;
-		private TypedArray backgroundColors;
-		private int appViewWidth;
-		private int appViewHeight;
-		private int hasColumns;
-		private int hasRows;
-		private Drawable drawable;
-		private Bitmap bitmapOverlay;
-		private Bitmap src;
-		private Bitmap CroppingSrc;
-		private Canvas canvas;
-		private int cardInOrder = 0;
-		private int currentCell = 0;
-    	
-		public void initialize(TypedArray cards,TypedArray bgColors , int viewWidth, int viewHeight,int columns, int rows){
-			
-		}
-		
-		
-    }
 	
 	private class MyImageViewTouchProcessor implements View.OnTouchListener{
 		private double initialX = 0;
@@ -159,7 +164,7 @@ public class ImageCards extends Activity {
 		
 	}
 	
-	public class HeapDumpingUncaughtExceptionHandler implements Thread.UncaughtExceptionHandler {
+	/*public class HeapDumpingUncaughtExceptionHandler implements Thread.UncaughtExceptionHandler {
 	    private static final String HPROF_DUMP_BASENAME = "LeakingApp.dalvik-hprof";
 	    private final String dataDir;
 	 
@@ -179,6 +184,6 @@ public class ImageCards extends Activity {
 	        }
 	        ex.printStackTrace();
 	    }
-	}
+	}*/
 }
 

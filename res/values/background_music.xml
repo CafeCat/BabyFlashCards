@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 	<array name="background_music_files">
-	    <item>@raw/cracklebox_odd_doppler</item>
-	    <item>@raw/chopin_walts_35sec</item>
+	   <item>@raw/chopin_walts_35sec</item>
+	    <item>@raw/mozart_turkish_march_first40sec</item>
+	    <item>@raw/background_music_mozart_sonata_part1</item>
 	</array>    
 </resources>
