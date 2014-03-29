@@ -28,7 +28,7 @@ import java.lang.Runnable;
 public class ImageCards extends Activity {
     private TextView debugTxt;
     private static final String Tag = "imageCards";
-    private Handler mHandler;
+    
     private Handler mHandlerSwitch;
     
     private int soundID;
@@ -37,6 +37,10 @@ public class ImageCards extends Activity {
     private int thisAppViewWidth;
     private int thisAppViewHeight;
     private viewAllCards myCardsViewer;
+    private int countCellAnimated=0;
+    private int numCols = 6;
+    private int numRows = 4;
+    private int delay=20;
     
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -52,8 +56,8 @@ public class ImageCards extends Activity {
 		
 		myCardsViewer = new viewAllCards(getApplicationContext());
 		myCardsViewer = (viewAllCards)findViewById(R.id.view2);	
-		myCardsViewer.prepare(size.x, size.y, 6, 4);
-		mHandler = new Handler();
+		myCardsViewer.prepare(size.x, size.y, this.numCols, this.numRows);
+		
 		mHandlerSwitch = new Handler();
         
 		//handel sounds
@@ -76,9 +80,7 @@ public class ImageCards extends Activity {
         mp.setOnCompletionListener(new OnCompletionListener() {
 			@Override
 			public void onCompletion(MediaPlayer mp) {
-				if(myCardsViewer.getPlayingCardIndex()>=0 && myCardsViewer.getPlayingCardIndex()<=7){
-					mp.setd
-				}
+				
 			}
 		});
         
@@ -95,14 +97,16 @@ public class ImageCards extends Activity {
 	
 	@Override 
 	protected void onPause(){
-		mHandler.removeCallbacks(runCellChangeAnimation);
+		//mHandler.removeCallbacks(runCellChangeAnimation);
 		mHandlerSwitch.removeCallbacks(runCellAnimation);
 		super.onPause();
 	}
 	
 	@Override
 	protected void onResume(){
-		mHandler.post(runCellChangeAnimation);
+		myCardsViewer.setReadyToPause(false);
+		//mHandler.post(runCellChangeAnimation);
+		mHandlerSwitch.post(runCellAnimation);
 		super.onResume();
 	}
 	
@@ -115,7 +119,7 @@ public class ImageCards extends Activity {
         		mySoundEffects.setVolume(0.5f);
         		mySoundEffects.play(soundID);
         	}
-        	Log.e(Tag,"Runnable CellChange");
+        	//Log.e(Tag,"Runnable CellChange");
         }        
     };
     
@@ -123,11 +127,26 @@ public class ImageCards extends Activity {
     {
     	public void run()
     	{
-    		if(myCardsViewer.updateCellAnimationFrame() == false){
-    			mHandlerSwitch.postDelayed(this, 5);
+    		if(myCardsViewer.isAnimationPaused()){
+    			mHandlerSwitch.removeCallbacks(runCellAnimation);
     		}else{
-    			mHandler.post(runCellChangeAnimation);
-    			
+    			if(myCardsViewer.isCellAnimationDone()){
+    				if(myCardsViewer.isCellOpen() == false){
+    					delay = delay - Math.round((float)delay*0.8f);
+    					if(delay<1){
+    						delay = 1;
+    					}
+	            		mySoundEffects.setVolume(0.5f);
+	            		mySoundEffects.play(soundID);
+	            	}else{
+	            		delay = delay + delay*3;
+	            		if(delay>20){
+	            		delay=20;}
+	            	}
+    				Log.e(Tag,"delay "+Integer.toString(delay));
+    			}
+    			myCardsViewer.updateCellAnimationFrame();
+    			mHandlerSwitch.postDelayed(this, delay);
     		}
     	}
     };
@@ -144,8 +163,6 @@ public class ImageCards extends Activity {
 			case MotionEvent.ACTION_DOWN:
 				initialX = event.getRawX();
 				initialY = event.getRawY(); 
-				mHandler.removeCallbacks(runCellChangeAnimation);
-				mHandlerSwitch.removeCallbacks(runCellAnimation);
 				break;
 			case MotionEvent.ACTION_MOVE:
 				double currentX = event.getRawX();
@@ -154,8 +171,13 @@ public class ImageCards extends Activity {
 	        	double area = radius*radius*Math.PI;
 	        	debugTxt.setText("inital ("+ (int)initialX+","+(int)initialY+")| area "+(int)area);
 	        	if((int)area > limitArea){
+	        		Log.e(Tag, "!!!!!!");
 	        		initialX = currentX;
 	        		initialY = currentY;
+	        		//myCardsViewer.setCurrentAnimationCell(0);
+	        		myCardsViewer.setReadyToPause(true);
+	        		//mHandler.removeCallbacks(runCellChangeAnimation);
+	        		//mHandlerSwitch.removeCallbacks(runCellAnimation);
 	        	}
 				break;
 			}

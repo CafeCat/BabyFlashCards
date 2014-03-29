@@ -20,7 +20,7 @@ public class SoundManager {
 	
 	public SoundManager(Context appContext)
 	{
-	  sndPool = new SoundPool(16, AudioManager.STREAM_MUSIC, 0);
+	  sndPool = new SoundPool(1, AudioManager.STREAM_MUSIC, 0);
 	  pContext = appContext;
 	  sndPool.setOnLoadCompleteListener(new OnLoadCompleteListener() {
           @Override

@@ -36,11 +36,15 @@ public class viewAllCards extends View {
 	private int setAnimatingRows = 1;
 	private Matrix scaleEffects = new Matrix();
 	private float scaleSwitch = 0;
+	private float scaleSwitchBaseInc = 1f;
 	private int animatedTimes = 1;
 	private Boolean cellAnimcationDone = false;
 	private Boolean openCell = false;
     private Paint paint = new Paint();
     private int[] spiralIndex;
+    private Boolean readtToPause = false;
+    private Boolean animationPaused = false;
+    private int stepCount = 0;
 	
 	public viewAllCards(Context context) {
 		super(context);
@@ -62,6 +66,23 @@ public class viewAllCards extends View {
 	
 	public int getPlayingCardIndex(){
 		return this.crtAnimatingCard;
+	}
+	public void setReadyToPause(Boolean pauseSoon){
+		if(pauseSoon==false){
+			this.animationPaused = false;
+		}
+		this.readtToPause = pauseSoon;
+	}
+	public Boolean isAnimationPaused(){
+		return this.animationPaused;
+	}
+	public Boolean isCellAnimationDone(){
+		return this.cellAnimcationDone;
+	}
+	public void setCurrentAnimationCell(int cellIndex){
+		if(cellIndex<this.setAnimatingColumns*this.setAnimatingRows){
+			this.crtAnimatingTargetCell = cellIndex;
+		}
 	}
 	
 	/**
@@ -102,6 +123,7 @@ public class viewAllCards extends View {
 		return bgColor;
 	}
 	
+	
 	/**
 	 * Scales a cell bitmap and updates the offsetX and offsetY for onDraw.
 	 * @return
@@ -109,8 +131,7 @@ public class viewAllCards extends View {
 	public Boolean updateCellAnimationFrame(){	
 		cellAnimcationDone = false;
 		if(this.crtAnimatingTargetCell == this.setAnimatingColumns*this.setAnimatingRows){
-			this.crtAnimatingTargetCell = 0;
-
+			this.crtAnimatingTargetCell = 0;			
 			this.crtAnimatingCard = crtAnimatingCard + 1;
 			if(this.crtAnimatingCard == this.coloredCards.length()){
 				this.crtAnimatingCard = 0;
@@ -127,30 +148,21 @@ public class viewAllCards extends View {
 			myPreSlices = new SliceImage(this.aPreFitableVersionCard, this.setAnimatingColumns, this.setAnimatingRows);
 		}
 		Bitmap bm = null;
-		if(animatedTimes == 0)
-		{
-			bm = myPreSlices.getSlice(spiralIndex[crtAnimatingTargetCell]);
-		}else if(animatedTimes == 1){
-			bm = mySlices.getSlice(spiralIndex[crtAnimatingTargetCell]);
-		}
 		if(scaleSwitch<1){
-			scaleSwitch = scaleSwitch + 0.04f + (float)scaleSwitch/4f;
-		}else if(scaleSwitch > 1){
-			scaleSwitch = 1;
+			scaleSwitch =  scaleSwitch + 0.01f + (float)scaleSwitch*0.2f;
+		}else if(scaleSwitch > 1f){
+			scaleSwitch = 1f;
 		}
-		//Log.e(Tag_ViewAllCards,"updateCellAnimationFrame(), scaleSwitch "+scaleSwitch);
+		Log.e(Tag_ViewAllCards,"updateCellAnimationFrame(), scaleSwitch "+scaleSwitch);
 		scaleEffects.reset();
 		if(animatedTimes == 0)
 		{
 			float ns = 1f-scaleSwitch;
-			if(ns<=0){
-				ns = 0.06f;
-			}
+			bm = myPreSlices.getSlice(spiralIndex[crtAnimatingTargetCell]);
 			scaleEffects.postScale(ns, 1f, (float)bm.getWidth()/2f, (float)bm.getHeight()/2f);
-			openCell = false;
 		}else if(animatedTimes == 1){
+			bm = mySlices.getSlice(spiralIndex[crtAnimatingTargetCell]);
 			scaleEffects.postScale(scaleSwitch, 1f, (float)bm.getWidth()/2f, (float)bm.getHeight()/2f);
-			openCell = true;
 		}
 		
 		cellBlock = Bitmap.createBitmap(bm, 0, 0, bm.getWidth(), bm.getHeight(), scaleEffects,false);
@@ -167,19 +179,16 @@ public class viewAllCards extends View {
 		}
 		
 		if(scaleSwitch >= 1){
-			cellAnimcationDone = true;
 			Canvas canvas = new Canvas(storeCellBlock);
 			if(animatedTimes == 0){
-				canvas.drawRect(cx, cy, cx+cw, cy+ch, paint);
-				animatedTimes = animatedTimes + 1;
+				canvas.drawRect(cx, cy, cx+cw, cy+ch, paint);	
 			}else if(animatedTimes == 1){
 				canvas.drawBitmap(bm, mySlices.getCellOffsetX(spiralIndex[crtAnimatingTargetCell]),mySlices.getCellOffsetY(spiralIndex[crtAnimatingTargetCell]),null);
-				crtAnimatingTargetCell = crtAnimatingTargetCell + 1;
-				animatedTimes = 0;
 			}
-			scaleSwitch = 0;
 		}
 		//Log.e(Tag_ViewAllCards,"updateCellAnimationFrame(), return "+cellAnimcationDone.toString());
+		stepCount++;
+		Log.e(Tag_ViewAllCards,"step "+Integer.toString(stepCount));
         invalidate();
         return cellAnimcationDone; 
 	}
@@ -246,6 +255,7 @@ public class viewAllCards extends View {
 		spiralIndex = newSpiral.clone();
 	}
 
+
 	
 	@Override
 	protected void onDraw(Canvas canvas){
@@ -257,7 +267,25 @@ public class viewAllCards extends View {
 			canvas.drawBitmap(storeCellBlock, 0, 0, null);
 		}
         canvas.drawBitmap(cellBlock,drawAtX,drawAtY, null);
-        
+        if(scaleSwitch >= 1){
+			cellAnimcationDone = true;
+			stepCount = 0;
+			if(animatedTimes == 0){
+				openCell = false;
+				animatedTimes = animatedTimes + 1;
+				
+			}else if(animatedTimes == 1){
+				openCell = true;
+				crtAnimatingTargetCell = crtAnimatingTargetCell + 1;
+				animatedTimes = 0;
+			}
+			scaleSwitch = 0;
+		}else{
+			cellAnimcationDone = false;
+		}
+        if(this.readtToPause==true && crtAnimatingTargetCell==this.setAnimatingColumns*this.setAnimatingRows){
+			this.animationPaused = true;
+		}
         //Log.e(Tag_ViewAllCards,"onDraw(), atCell"+crtAnimatingTargetCell);
         
         
