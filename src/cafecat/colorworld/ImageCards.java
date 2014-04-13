@@ -97,7 +97,6 @@ public class ImageCards extends Activity {
 	
 	@Override 
 	protected void onPause(){
-		//mHandler.removeCallbacks(runCellChangeAnimation);
 		mHandlerSwitch.removeCallbacks(runCellAnimation);
 		super.onPause();
 	}
@@ -105,23 +104,9 @@ public class ImageCards extends Activity {
 	@Override
 	protected void onResume(){
 		myCardsViewer.setReadyToPause(false);
-		//mHandler.post(runCellChangeAnimation);
 		mHandlerSwitch.post(runCellAnimation);
 		super.onResume();
 	}
-	
-	private Runnable runCellChangeAnimation = new Runnable() 
-    {
-        public void run() 
-        {
-        	mHandlerSwitch.post(runCellAnimation);
-        	if(myCardsViewer.isCellOpen()){
-        		mySoundEffects.setVolume(0.5f);
-        		mySoundEffects.play(soundID);
-        	}
-        	//Log.e(Tag,"Runnable CellChange");
-        }        
-    };
     
     private Runnable runCellAnimation = new Runnable()
     {
@@ -176,7 +161,6 @@ public class ImageCards extends Activity {
 	        		initialY = currentY;
 	        		//myCardsViewer.setCurrentAnimationCell(0);
 	        		myCardsViewer.setReadyToPause(true);
-	        		//mHandler.removeCallbacks(runCellChangeAnimation);
 	        		//mHandlerSwitch.removeCallbacks(runCellAnimation);
 	        	}
 				break;
