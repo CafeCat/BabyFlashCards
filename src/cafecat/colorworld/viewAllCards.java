@@ -149,7 +149,7 @@ public class viewAllCards extends View {
 		}
 		Bitmap bm = null;
 		if(scaleSwitch<1){
-			scaleSwitch =  scaleSwitch + 0.01f + (float)scaleSwitch*0.2f;
+			scaleSwitch =  scaleSwitch + 0.01f + (float)scaleSwitch*2f;
 		}else if(scaleSwitch > 1f){
 			scaleSwitch = 1f;
 		}

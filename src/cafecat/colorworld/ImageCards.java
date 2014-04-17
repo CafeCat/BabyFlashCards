@@ -40,7 +40,8 @@ public class ImageCards extends Activity {
     private int countCellAnimated=0;
     private int numCols = 6;
     private int numRows = 4;
-    private int delay=20;
+    private int delay=50;
+    private int inceBase = 1;
     
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -115,22 +116,30 @@ public class ImageCards extends Activity {
     		if(myCardsViewer.isAnimationPaused()){
     			mHandlerSwitch.removeCallbacks(runCellAnimation);
     		}else{
+    			inceBase++;
+    			if(myCardsViewer.isCellOpen()==false){
+					if(delay<20){
+						delay = 20;
+						inceBase = 1;
+					}
+					delay = delay - Math.round((float)inceBase*2);
+    			}else{
+    				delay = delay + Math.round((float)inceBase*2.5f);
+    				if(delay>50){
+    					delay=50;
+    					inceBase=1;
+    				}
+    			}
     			if(myCardsViewer.isCellAnimationDone()){
     				if(myCardsViewer.isCellOpen() == false){
-    					delay = delay - Math.round((float)delay*0.8f);
-    					if(delay<1){
-    						delay = 1;
-    					}
 	            		mySoundEffects.setVolume(0.5f);
 	            		mySoundEffects.play(soundID);
-	            	}else{
-	            		delay = delay + delay*3;
-	            		if(delay>20){
-	            		delay=20;}
 	            	}
-    				Log.e(Tag,"delay "+Integer.toString(delay));
+    				delay=50;
+    				inceBase=1;
     			}
     			myCardsViewer.updateCellAnimationFrame();
+    			Log.e(Tag,"delay "+Integer.toString(delay)+", "+Integer.toString(inceBase));
     			mHandlerSwitch.postDelayed(this, delay);
     		}
     	}
